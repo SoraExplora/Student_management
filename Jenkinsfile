@@ -40,7 +40,7 @@ pipeline {
         stage('Docker Push') {
             steps {
                 script {
-                    sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
+                    sh 'echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin'
                     sh "docker ps -a"
                     sh "docker push notsohealthy/student-management:1.0"
                 }
