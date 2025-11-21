@@ -7,7 +7,6 @@
     <list default="true" id="8bb7bb19-d48e-4dd7-8f50-3e385abdaa74" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/tn/esprit/studentmanagement/StudentManagementApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/tn/esprit/studentmanagement/StudentManagementApplicationTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +91,7 @@
       <updated>1756376938546</updated>
       <workItem from="1756376939723" duration="5973000" />
       <workItem from="1757852833669" duration="1052000" />
-      <workItem from="1763731198874" duration="203000" />
+      <workItem from="1763731198874" duration="673000" />
     </task>
     <servers />
   </component>

@@ -5,10 +5,9 @@ pipeline {
     }
 
     stages {
-        stage('MAVEN') {
+        stage('Code Test') {
             steps {
                 sh "mvn test"
-                sh "mvn package"
             }
         }
     }
