@@ -6,8 +6,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_USER ='notsohealthy'
-        DOCKER_PASS = credentials('notsohealthy')
+        DOCKER_CREDENTIALS= credentials('7ef56a65-28c0-4778-8db5-60003da1dc27')
     }
 
     stages {
@@ -41,7 +40,7 @@ pipeline {
         stage('Docker Push') {
             steps {
                 script {
-                    sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                    sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
                     sh "docker ps -a"
                     sh "docker push notsohealthy/student-management:1.0"
                 }
