@@ -7,8 +7,8 @@ pipeline {
     stages {
         stage("Code Checkout") {
             steps {
-            git branch: 'main',
-            url: 'https://github.com/NotSoHealthy/ben_hamouda_mohamed_amin_4SAE9.git'
+                git branch: 'main',
+                url: 'https://github.com/NotSoHealthy/ben_hamouda_mohamed_amin_4SAE9.git'
             }
         stage('Code Test') {
             steps {
