@@ -33,10 +33,10 @@ pipeline {
             }
         }
 
-        stage('Docker Run') {
+        stage('Docker Push') {
             steps {
                 script {
-                    sh "docker run -d -p 8089:8089 --name student-management student-management:1.0"
+                    sh "docker push NotSoHealthy/student-management:1.0:1.0"
                 }
             }
         }
