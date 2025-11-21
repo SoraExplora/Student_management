@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8bb7bb19-d48e-4dd7-8f50-3e385abdaa74" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/resources/application-test.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
     </list>
@@ -55,7 +56,7 @@
     "Spring Boot.StudentManagementApplication.executor": "Run",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Med Amin/Documents/Uni/ben_hamouda_mohamed_amin_4SAE9",
+    "last_opened_file_path": "C:/Users/Med Amin/Documents/Uni/ben_hamouda_mohamed_amin_4SAE9/src/main/resources",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -64,6 +65,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Med Amin\Documents\Uni\ben_hamouda_mohamed_amin_4SAE9\src\main\resources" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="StudentManagementApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="student-management" />
@@ -91,7 +97,7 @@
       <updated>1756376938546</updated>
       <workItem from="1756376939723" duration="5973000" />
       <workItem from="1757852833669" duration="1052000" />
-      <workItem from="1763731198874" duration="673000" />
+      <workItem from="1763731198874" duration="1257000" />
     </task>
     <servers />
   </component>
