@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY target/student-management-0.0.1-SNAPSHOT.jar .
 EXPOSE 8089
