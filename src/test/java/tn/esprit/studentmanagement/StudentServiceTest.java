@@ -1,3 +1,22 @@
+package tn.esprit.studentmanagement;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import tn.esprit.studentmanagement.entities.Student;
+import tn.esprit.studentmanagement.repositories.StudentRepository;
+import tn.esprit.studentmanagement.services.StudentService;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
 
@@ -16,7 +35,6 @@ public class StudentServiceTest {
 
     @Test
     void testGetStudentById_Found() {
-        // FIX: Repository returns Optional
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
 
         Student result = studentService.getStudentById(1L);
@@ -28,7 +46,6 @@ public class StudentServiceTest {
 
     @Test
     void testGetStudentById_NotFound() {
-        // FIX: Return Optional.empty() for not found
         when(studentRepository.findById(1L)).thenReturn(Optional.empty());
 
         Student result = studentService.getStudentById(1L);
@@ -41,7 +58,6 @@ public class StudentServiceTest {
         Student newStudent = new Student(null, "Jane", "Doe", "jane.doe@example.com", "Math");
         Student savedStudent = new Student(2L, "Jane", "Doe", "jane.doe@example.com", "Math");
         
-        // FIX: Use the correct method name
         when(studentRepository.save(any(Student.class))).thenReturn(savedStudent);
 
         Student result = studentService.saveStudent(newStudent);
@@ -53,10 +69,8 @@ public class StudentServiceTest {
 
     @Test
     void testDeleteStudent() {
-        // FIX: Use doNothing() for void repository methods
         doNothing().when(studentRepository).deleteById(1L);
 
-        // Assuming your service method calls the repository
         studentService.deleteStudent(1L);
 
         verify(studentRepository, times(1)).deleteById(1L);
