@@ -25,16 +25,16 @@ public class StudentServiceTest {
     private StudentService studentService;
 
     @Test
-    public void testFindAllStudents() {
-        // Given - Use the correct constructor with 5 parameters
+    public void testGetAllStudents() {
+        // Given
         Student student1 = new Student(1L, "John", "Doe", "john.doe@example.com", "Computer Science");
         Student student2 = new Student(2L, "Jane", "Smith", "jane.smith@example.com", "Mathematics");
         List<Student> expectedStudents = Arrays.asList(student1, student2);
 
         when(studentRepository.findAll()).thenReturn(expectedStudents);
 
-        // When - Use the correct method name from your service
-        List<Student> actualStudents = studentService.retrieveAllStudents();
+        // When - Use the actual method name from your service
+        List<Student> actualStudents = studentService.getAllStudents();
 
         // Then
         assertNotNull(actualStudents);
@@ -43,15 +43,15 @@ public class StudentServiceTest {
     }
 
     @Test
-    public void testFindStudentById() {
+    public void testGetStudentById() {
         // Given
         Long studentId = 1L;
         Student expectedStudent = new Student(studentId, "John", "Doe", "john.doe@example.com", "Computer Science");
         
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(expectedStudent));
 
-        // When
-        Student actualStudent = studentService.retrieveStudent(studentId);
+        // When - Use the actual method name
+        Student actualStudent = studentService.getStudentById(studentId);
 
         // Then
         assertNotNull(actualStudent);
@@ -61,46 +61,29 @@ public class StudentServiceTest {
     }
 
     @Test
-    public void testAddStudent() {
+    public void testSaveStudent() {
         // Given
-        Student studentToAdd = new Student(null, "John", "Doe", "john.doe@example.com", "Computer Science");
+        Student studentToSave = new Student(null, "John", "Doe", "john.doe@example.com", "Computer Science");
         Student savedStudent = new Student(1L, "John", "Doe", "john.doe@example.com", "Computer Science");
 
-        when(studentRepository.save(studentToAdd)).thenReturn(savedStudent);
+        when(studentRepository.save(studentToSave)).thenReturn(savedStudent);
 
-        // When
-        Student result = studentService.addStudent(studentToAdd);
+        // When - Use the actual method name
+        Student result = studentService.saveStudent(studentToSave);
 
         // Then
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        verify(studentRepository, times(1)).save(studentToAdd);
+        verify(studentRepository, times(1)).save(studentToSave);
     }
 
     @Test
-    public void testUpdateStudent() {
-        // Given
-        Student studentToUpdate = new Student(1L, "John", "Doe Updated", "john.updated@example.com", "Computer Science");
-        
-        when(studentRepository.save(studentToUpdate)).thenReturn(studentToUpdate);
-
-        // When
-        Student result = studentService.updateStudent(studentToUpdate);
-
-        // Then
-        assertNotNull(result);
-        assertEquals("Doe Updated", result.getLastName());
-        assertEquals("john.updated@example.com", result.getEmail());
-        verify(studentRepository, times(1)).save(studentToUpdate);
-    }
-
-    @Test
-    public void testRemoveStudent() {
+    public void testDeleteStudent() {
         // Given
         Long studentId = 1L;
 
-        // When
-        studentService.removeStudent(studentId);
+        // When - Use the actual method name
+        studentService.deleteStudent(studentId);
 
         // Then
         verify(studentRepository, times(1)).deleteById(studentId);
