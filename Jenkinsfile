@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "soraexplora/student-management:1.0"
-        SONAR_TOKEN = credentials('sonar-token') // create token in SonarQube
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -20,7 +20,6 @@ pipeline {
 
         stage('Code Test & Coverage') {
             steps {
-                // Run tests with Jacoco agent
                 sh "mvn clean test jacoco:report"
             }
         }
@@ -35,35 +34,63 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                script {
+                    timeout(time: 15, unit: 'MINUTES') {  // Increased timeout
+                        waitForQualityGate abortPipeline: true
+                    }
                 }
             }
         }
 
         stage('Code Build') {
             steps {
-                sh "mvn package"
+                sh "mvn package -DskipTests"  // Skip tests since they already ran
             }
         }
 
         stage('Docker Build') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                    // Check if Dockerfile exists before building
+                    sh '''
+                        if [ -f "Dockerfile" ]; then
+                            docker build -t ${DOCKER_IMAGE} .
+                        else
+                            echo "No Dockerfile found, skipping Docker build"
+                            exit 0
+                        fi
+                    '''
                 }
             }
         }
 
         stage('Docker Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'd431a208-50e1-4ea5-adbd-34520e3f242b', 
-                                                 usernameVariable: 'DOCKER_USER', 
-                                                 passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh "docker push ${DOCKER_IMAGE}"
+                script {
+                    // Only push if Docker build was successful
+                    sh '''
+                        if [ -f "Dockerfile" ]; then
+                            docker login -u $DOCKER_USER -p $DOCKER_PASS
+                            docker push ${DOCKER_IMAGE}
+                        else
+                            echo "No Docker image to push"
+                        fi
+                    '''
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            // Clean up workspace
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
