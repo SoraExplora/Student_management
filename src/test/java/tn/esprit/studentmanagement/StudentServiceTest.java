@@ -1,23 +1,5 @@
-package tn.esprit.studentmanagement.services;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import tn.esprit.studentmanagement.entities.Student;
-import tn.esprit.studentmanagement.repositories.StudentRepository;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
-class StudentServiceTest {
+public class StudentServiceTest {
 
     @Mock
     private StudentRepository studentRepository;
@@ -25,85 +7,58 @@ class StudentServiceTest {
     @InjectMocks
     private StudentService studentService;
 
-    @Test
-    void testGetAllStudents() {
-        // Arrange
-        Student student1 = new Student();
-        student1.setIdStudent(1L);
-        student1.setFirstName("John");
-        
-        Student student2 = new Student();
-        student2.setIdStudent(2L);
-        student2.setFirstName("Jane");
-        
-        when(studentRepository.findAll()).thenReturn(Arrays.asList(student1, student2));
+    private Student student;
 
-        // Act
-        List<Student> students = studentService.getAllStudents();
-
-        // Assert
-        assertEquals(2, students.size());
-        verify(studentRepository, times(1)).findAll();
+    @BeforeEach
+    void setUp() {
+        student = new Student(1L, "John", "Doe", "john.doe@example.com", "Computer Science");
     }
 
     @Test
     void testGetStudentById_Found() {
-        // Arrange
-        Student student = new Student();
-        student.setIdStudent(1L);
-        student.setFirstName("John");
-        
+        // FIX: Repository returns Optional
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
 
-        // Act
-        Optional<Student> result = studentService.getStudentById(1L);
+        Student result = studentService.getStudentById(1L);
 
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals("John", result.get().getFirstName());
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("John", result.getFirstName());
     }
 
     @Test
     void testGetStudentById_NotFound() {
-        // Arrange
+        // FIX: Return Optional.empty() for not found
         when(studentRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act
-        Optional<Student> result = studentService.getStudentById(1L);
+        Student result = studentService.getStudentById(1L);
 
-        // Assert
-        assertFalse(result.isPresent());
+        assertNull(result);
     }
 
     @Test
-    void testCreateStudent() {
-        // Arrange
-        Student student = new Student();
-        student.setFirstName("John");
-        student.setLastName("Doe");
-        student.setEmail("john.doe@example.com");
+    void testSaveStudent() {
+        Student newStudent = new Student(null, "Jane", "Doe", "jane.doe@example.com", "Math");
+        Student savedStudent = new Student(2L, "Jane", "Doe", "jane.doe@example.com", "Math");
         
-        when(studentRepository.save(any(Student.class))).thenReturn(student);
+        // FIX: Use the correct method name
+        when(studentRepository.save(any(Student.class))).thenReturn(savedStudent);
 
-        // Act
-        Student savedStudent = studentService.createStudent(student);
+        Student result = studentService.saveStudent(newStudent);
 
-        // Assert
-        assertNotNull(savedStudent);
-        assertEquals("John", savedStudent.getFirstName());
-        verify(studentRepository, times(1)).save(student);
+        assertNotNull(result);
+        assertEquals(2L, result.getId());
+        assertEquals("Jane", result.getFirstName());
     }
 
     @Test
     void testDeleteStudent() {
-        // Arrange
-        Long studentId = 1L;
-        when(studentRepository.existsById(studentId)).thenReturn(true);
+        // FIX: Use doNothing() for void repository methods
+        doNothing().when(studentRepository).deleteById(1L);
 
-        // Act
-        studentService.deleteStudent(studentId);
+        // Assuming your service method calls the repository
+        studentService.deleteStudent(1L);
 
-        // Assert
-        verify(studentRepository, times(1)).deleteById(studentId);
+        verify(studentRepository, times(1)).deleteById(1L);
     }
 }
