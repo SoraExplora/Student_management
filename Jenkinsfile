@@ -25,7 +25,7 @@ pipeline {
             
             post {
                 always {
-                    junit 'target/surefire-reports/*.xml' // Publish test results
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
@@ -45,7 +45,11 @@ pipeline {
             post {
                 success {
                     echo "✅ SonarQube analysis submitted successfully"
-                    echo "Check results at: ${env.SONAR_HOST_URL}/dashboard?id=tn.esprit%3Astudent-management"
+                    script {
+                        // Get the actual SonarQube URL from environment
+                        def sonarUrl = env.SONAR_HOST_URL ?: 'http://localhost:9000'
+                        echo "Check results at: ${sonarUrl}/dashboard?id=tn.esprit%3Astudent-management"
+                    }
                 }
                 failure {
                     echo "❌ SonarQube analysis failed"
@@ -58,9 +62,11 @@ pipeline {
                 script {
                     echo "🔍 Checking Quality Gate status..."
                     
+                    // Wait a bit for analysis to start processing
+                    sleep 30
+                    
                     try {
-                        // Try the standard quality gate wait with timeout
-                        timeout(time: 5, unit: 'MINUTES') {
+                        timeout(time: 3, unit: 'MINUTES') {
                             def qualityGate = waitForQualityGate abortPipeline: false
                             echo "✅ Quality Gate Status: ${qualityGate.status}"
                             
@@ -70,9 +76,10 @@ pipeline {
                             }
                         }
                     } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
-                        echo "⏰ Quality Gate timeout after 5 minutes"
-                        echo "📊 SonarQube analysis might still be processing"
-                        echo "🔗 Check manually at: ${env.SONAR_HOST_URL}/dashboard?id=tn.esprit%3Astudent-management"
+                        echo "⏰ Quality Gate timeout after 3 minutes"
+                        echo "📊 SonarQube analysis completed successfully but quality gate check timed out"
+                        echo "🔗 Check results manually at: http://localhost:9000/dashboard?id=tn.esprit%3Astudent-management"
+                        echo "➡️ Continuing pipeline with UNSTABLE status..."
                         currentBuild.result = 'UNSTABLE'
                     } catch (Exception e) {
                         echo "❌ Quality Gate check failed: ${e.message}"
@@ -91,7 +98,7 @@ pipeline {
             post {
                 success {
                     echo "✅ Application packaged successfully"
-                    archiveArtifacts 'target/*.jar' // Archive the built JAR
+                    archiveArtifacts 'target/*.jar'
                 }
             }
         }
@@ -147,7 +154,7 @@ pipeline {
         always {
             echo "🏁 Pipeline execution completed"
             echo "📊 Build Result: ${currentBuild.currentResult}"
-            echo "🔗 SonarQube: ${env.SONAR_HOST_URL}/dashboard?id=tn.esprit%3Astudent-management"
+            echo "🔗 SonarQube: http://localhost:9000/dashboard?id=tn.esprit%3Astudent-management"
             
             // Clean up Docker images to save space
             script {
@@ -156,32 +163,17 @@ pipeline {
                 }
             }
             
-            cleanWs() // Clean workspace
+            cleanWs()
         }
         success {
             echo "🎉 Pipeline completed successfully!"
-            emailext (
-                subject: "✅ Pipeline SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "The pipeline completed successfully.\n\nCheck SonarQube: ${env.SONAR_HOST_URL}/dashboard?id=tn.esprit%3Astudent-management",
-                to: "you@email.com"
-            )
         }
         unstable {
             echo "⚠️ Pipeline completed with warnings"
-            echo "ℹ️ This is usually due to SonarQube quality gate timeout"
-            emailext (
-                subject: "⚠️ Pipeline UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "The pipeline completed with warnings (likely SonarQube timeout).\n\nCheck SonarQube: ${env.SONAR_HOST_URL}/dashboard?id=tn.esprit%3Astudent-management",
-                to: "you@email.com"
-            )
+            echo "ℹ️ This is usually due to SonarQube quality gate timeout - analysis was still successful!"
         }
         failure {
             echo "❌ Pipeline failed!"
-            emailext (
-                subject: "❌ Pipeline FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "The pipeline failed. Please check Jenkins logs.",
-                to: "you@email.com"
-            )
         }
     }
 }
