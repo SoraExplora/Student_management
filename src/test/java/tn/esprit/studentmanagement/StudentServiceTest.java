@@ -1,4 +1,4 @@
-package tn.esprit.studentmanagement;
+package tn.esprit.studentmanagement.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,8 +9,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import tn.esprit.studentmanagement.entities.Student;
 import tn.esprit.studentmanagement.repositories.StudentRepository;
-import tn.esprit.studentmanagement.services.StudentService;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,13 +25,15 @@ public class StudentServiceTest {
     private StudentRepository studentRepository;
 
     @InjectMocks
-    private StudentService studentService;
+    private StudentServiceImpl studentService; // Use the implementation class
 
     private Student student;
 
     @BeforeEach
     void setUp() {
-        student = new Student(1L, "John", "Doe", "john.doe@example.com", "Computer Science");
+        // Use the actual constructor with all required fields
+        student = new Student(1L, "John", "Doe", "john.doe@example.com", "123 Street", 
+                            LocalDate.of(2000, 1, 1), "123456789", null, Collections.emptyList());
     }
 
     @Test
@@ -55,8 +58,10 @@ public class StudentServiceTest {
 
     @Test
     void testSaveStudent() {
-        Student newStudent = new Student(null, "Jane", "Doe", "jane.doe@example.com", "Math");
-        Student savedStudent = new Student(2L, "Jane", "Doe", "jane.doe@example.com", "Math");
+        Student newStudent = new Student(null, "Jane", "Doe", "jane.doe@example.com", "456 Street", 
+                                       LocalDate.of(2001, 1, 1), "987654321", null, Collections.emptyList());
+        Student savedStudent = new Student(2L, "Jane", "Doe", "jane.doe@example.com", "456 Street", 
+                                         LocalDate.of(2001, 1, 1), "987654321", null, Collections.emptyList());
         
         when(studentRepository.save(any(Student.class))).thenReturn(savedStudent);
 
