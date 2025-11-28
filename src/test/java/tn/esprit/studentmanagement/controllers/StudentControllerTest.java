@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import tn.esprit.studentmanagement.entities.Student;
+import tn.esprit.studentmanagement.entities.Department;
 import tn.esprit.studentmanagement.services.IStudentService;
 
 import java.util.Arrays;
@@ -30,11 +31,18 @@ public class StudentControllerTest {
 
     private Student student1;
     private Student student2;
+    private Department computerScienceDept;
+    private Department mathDept;
+    private Department physicsDept;
 
     @BeforeEach
     void setUp() {
-        student1 = new Student(1L, "John", "Doe", "john.doe@example.com", "Computer Science");
-        student2 = new Student(2L, "Jane", "Smith", "jane.smith@example.com", "Mathematics");
+        computerScienceDept = new Department(1L, "Computer Science", "Dr. Smith", "Building A", "123-456-7890");
+        mathDept = new Department(2L, "Mathematics", "Dr. Johnson", "Building B", "123-456-7891");
+        physicsDept = new Department(3L, "Physics", "Dr. Wilson", "Building C", "123-456-7892");
+        
+        student1 = new Student(1L, "John", "Doe", "john.doe@example.com", "123 Street", "123-456-7890", null, computerScienceDept);
+        student2 = new Student(2L, "Jane", "Smith", "jane.smith@example.com", "456 Avenue", "123-456-7891", null, mathDept);
     }
 
     @Test
@@ -73,14 +81,28 @@ public class StudentControllerTest {
 
     @Test
     void testCreateStudent() throws Exception {
-        Student newStudent = new Student(null, "Alice", "Johnson", "alice.johnson@example.com", "Physics");
-        Student savedStudent = new Student(3L, "Alice", "Johnson", "alice.johnson@example.com", "Physics");
+        Student newStudent = new Student(null, "Alice", "Johnson", "alice.johnson@example.com", "789 Road", "123-456-7893", null, physicsDept);
+        Student savedStudent = new Student(3L, "Alice", "Johnson", "alice.johnson@example.com", "789 Road", "123-456-7893", null, physicsDept);
         
         when(studentService.saveStudent(any(Student.class))).thenReturn(savedStudent);
 
+        String studentJson = """
+        {
+            "firstName": "Alice",
+            "lastName": "Johnson",
+            "email": "alice.johnson@example.com",
+            "address": "789 Road",
+            "phoneNumber": "123-456-7893",
+            "department": {
+                "id": 3,
+                "name": "Physics"
+            }
+        }
+        """;
+
         mockMvc.perform(post("/students/createStudent")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"firstName\":\"Alice\",\"lastName\":\"Johnson\",\"email\":\"alice.johnson@example.com\",\"department\":\"Physics\"}"))
+                .content(studentJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(3L))
                 .andExpect(jsonPath("$.firstName").value("Alice"))
@@ -89,13 +111,28 @@ public class StudentControllerTest {
 
     @Test
     void testUpdateStudent() throws Exception {
-        Student updatedStudent = new Student(1L, "John", "Doe Updated", "john.updated@example.com", "Computer Science");
+        Student updatedStudent = new Student(1L, "John", "Doe Updated", "john.updated@example.com", "123 Street Updated", "123-456-7899", null, computerScienceDept);
         
         when(studentService.saveStudent(any(Student.class))).thenReturn(updatedStudent);
 
+        String studentJson = """
+        {
+            "id": 1,
+            "firstName": "John",
+            "lastName": "Doe Updated",
+            "email": "john.updated@example.com",
+            "address": "123 Street Updated",
+            "phoneNumber": "123-456-7899",
+            "department": {
+                "id": 1,
+                "name": "Computer Science"
+            }
+        }
+        """;
+
         mockMvc.perform(put("/students/updateStudent")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Doe Updated\",\"email\":\"john.updated@example.com\",\"department\":\"Computer Science\"}"))
+                .content(studentJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.lastName").value("Doe Updated"))
