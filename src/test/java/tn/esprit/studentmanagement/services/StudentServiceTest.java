@@ -22,18 +22,18 @@ public class StudentServiceTest {
     private StudentRepository studentRepository;
 
     @InjectMocks
-    private StudentService studentService; // Changed from StudentServiceImpl to StudentService
+    private StudentService studentService;
 
     @Test
     public void testFindAllStudents() {
-        // Given
-        Student student1 = new Student(1L, "John", "Doe", "john.doe@example.com");
-        Student student2 = new Student(2L, "Jane", "Smith", "jane.smith@example.com");
+        // Given - Use the correct constructor with 5 parameters
+        Student student1 = new Student(1L, "John", "Doe", "john.doe@example.com", "Computer Science");
+        Student student2 = new Student(2L, "Jane", "Smith", "jane.smith@example.com", "Mathematics");
         List<Student> expectedStudents = Arrays.asList(student1, student2);
 
         when(studentRepository.findAll()).thenReturn(expectedStudents);
 
-        // When
+        // When - Use the correct method name from your service
         List<Student> actualStudents = studentService.retrieveAllStudents();
 
         // Then
@@ -46,7 +46,7 @@ public class StudentServiceTest {
     public void testFindStudentById() {
         // Given
         Long studentId = 1L;
-        Student expectedStudent = new Student(studentId, "John", "Doe", "john.doe@example.com");
+        Student expectedStudent = new Student(studentId, "John", "Doe", "john.doe@example.com", "Computer Science");
         
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(expectedStudent));
 
@@ -63,8 +63,8 @@ public class StudentServiceTest {
     @Test
     public void testAddStudent() {
         // Given
-        Student studentToAdd = new Student(null, "John", "Doe", "john.doe@example.com");
-        Student savedStudent = new Student(1L, "John", "Doe", "john.doe@example.com");
+        Student studentToAdd = new Student(null, "John", "Doe", "john.doe@example.com", "Computer Science");
+        Student savedStudent = new Student(1L, "John", "Doe", "john.doe@example.com", "Computer Science");
 
         when(studentRepository.save(studentToAdd)).thenReturn(savedStudent);
 
@@ -75,5 +75,34 @@ public class StudentServiceTest {
         assertNotNull(result);
         assertEquals(1L, result.getId());
         verify(studentRepository, times(1)).save(studentToAdd);
+    }
+
+    @Test
+    public void testUpdateStudent() {
+        // Given
+        Student studentToUpdate = new Student(1L, "John", "Doe Updated", "john.updated@example.com", "Computer Science");
+        
+        when(studentRepository.save(studentToUpdate)).thenReturn(studentToUpdate);
+
+        // When
+        Student result = studentService.updateStudent(studentToUpdate);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("Doe Updated", result.getLastName());
+        assertEquals("john.updated@example.com", result.getEmail());
+        verify(studentRepository, times(1)).save(studentToUpdate);
+    }
+
+    @Test
+    public void testRemoveStudent() {
+        // Given
+        Long studentId = 1L;
+
+        // When
+        studentService.removeStudent(studentId);
+
+        // Then
+        verify(studentRepository, times(1)).deleteById(studentId);
     }
 }
