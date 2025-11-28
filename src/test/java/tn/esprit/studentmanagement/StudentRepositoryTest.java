@@ -3,7 +3,9 @@ package tn.esprit.studentmanagement.repositories;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.TestPropertySource;
+
 import tn.esprit.studentmanagement.entities.Student;
 
 import java.util.List;
@@ -12,84 +14,122 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@TestPropertySource(properties = {
-    "spring.jpa.hibernate.ddl-auto=create-drop"
-})
-class StudentRepositoryTest {
+@TestPropertySource(locations = "classpath:application-test.properties")
+public class StudentRepositoryTest {
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Autowired
     private StudentRepository studentRepository;
 
     @Test
-    void testSaveStudent() {
-        // Arrange
-        Student student = new Student();
-        student.setFirstName("John");
-        student.setLastName("Doe");
-        student.setEmail("john.doe@example.com");
+    void testFindById_Exists() {
+        // Given
+        Student student = new Student(null, "John", "Doe", "john.doe@example.com", "Computer Science");
+        Student savedStudent = entityManager.persistAndFlush(student);
 
-        // Act
-        Student savedStudent = studentRepository.save(student);
+        // When
+        Optional<Student> found = studentRepository.findById(savedStudent.getId());
 
-        // Assert
-        assertNotNull(savedStudent.getIdStudent());
-        assertEquals("John", savedStudent.getFirstName());
+        // Then
+        assertTrue(found.isPresent());
+        assertEquals("John", found.get().getFirstName());
+        assertEquals("Doe", found.get().getLastName());
+        assertEquals("john.doe@example.com", found.get().getEmail());
     }
 
     @Test
-    void testFindById() {
-        // Arrange
-        Student student = new Student();
-        student.setFirstName("John");
-        student.setLastName("Doe");
-        student.setEmail("john.doe@example.com");
-        Student savedStudent = studentRepository.save(student);
+    void testFindById_NotExists() {
+        // When
+        Optional<Student> found = studentRepository.findById(999L);
 
-        // Act
-        Optional<Student> foundStudent = studentRepository.findById(savedStudent.getIdStudent());
-
-        // Assert
-        assertTrue(foundStudent.isPresent());
-        assertEquals("John", foundStudent.get().getFirstName());
+        // Then
+        assertFalse(found.isPresent());
     }
 
     @Test
     void testFindAll() {
-        // Arrange
-        Student student1 = new Student();
-        student1.setFirstName("John");
-        student1.setLastName("Doe");
-        student1.setEmail("john.doe@example.com");
+        // Given
+        Student student1 = new Student(null, "John", "Doe", "john.doe@example.com", "Computer Science");
+        Student student2 = new Student(null, "Jane", "Smith", "jane.smith@example.com", "Mathematics");
+        
+        entityManager.persist(student1);
+        entityManager.persist(student2);
+        entityManager.flush();
 
-        Student student2 = new Student();
-        student2.setFirstName("Jane");
-        student2.setLastName("Smith");
-        student2.setEmail("jane.smith@example.com");
-
-        studentRepository.save(student1);
-        studentRepository.save(student2);
-
-        // Act
+        // When
         List<Student> students = studentRepository.findAll();
 
-        // Assert
+        // Then
         assertEquals(2, students.size());
+        assertTrue(students.stream().anyMatch(s -> s.getFirstName().equals("John")));
+        assertTrue(students.stream().anyMatch(s -> s.getFirstName().equals("Jane")));
+    }
+
+    @Test
+    void testSaveStudent() {
+        // Given
+        Student student = new Student(null, "Alice", "Johnson", "alice.johnson@example.com", "Physics");
+
+        // When
+        Student savedStudent = studentRepository.save(student);
+
+        // Then
+        assertNotNull(savedStudent.getId());
+        assertEquals("Alice", savedStudent.getFirstName());
+        assertEquals("Johnson", savedStudent.getLastName());
+        assertEquals("alice.johnson@example.com", savedStudent.getEmail());
+        assertEquals("Physics", savedStudent.getDepartment());
     }
 
     @Test
     void testDeleteStudent() {
-        // Arrange
-        Student student = new Student();
-        student.setFirstName("John");
-        student.setLastName("Doe");
-        student.setEmail("john.doe@example.com");
-        Student savedStudent = studentRepository.save(student);
+        // Given
+        Student student = new Student(null, "John", "Doe", "john.doe@example.com", "Computer Science");
+        Student savedStudent = entityManager.persistAndFlush(student);
 
-        // Act
-        studentRepository.deleteById(savedStudent.getIdStudent());
+        // When
+        studentRepository.deleteById(savedStudent.getId());
+        entityManager.flush();
 
-        // Assert
-        Optional<Student> deletedStudent = studentRepository.findById(savedStudent.getIdStudent());
-        assertFalse(deletedStudent.isPresent());
+        // Then
+        Optional<Student> deleted = studentRepository.findById(savedStudent.getId());
+        assertFalse(deleted.isPresent());
+    }
+
+    @Test
+    void testFindByEmail() {
+        // Given
+        Student student = new Student(null, "John", "Doe", "john.doe@example.com", "Computer Science");
+        entityManager.persistAndFlush(student);
+
+        // When
+        Optional<Student> found = studentRepository.findByEmail("john.doe@example.com");
+
+        // Then
+        assertTrue(found.isPresent());
+        assertEquals("John", found.get().getFirstName());
+        assertEquals("john.doe@example.com", found.get().getEmail());
+    }
+
+    @Test
+    void testFindByDepartment() {
+        // Given
+        Student student1 = new Student(null, "John", "Doe", "john.doe@example.com", "Computer Science");
+        Student student2 = new Student(null, "Jane", "Smith", "jane.smith@example.com", "Computer Science");
+        Student student3 = new Student(null, "Alice", "Johnson", "alice.johnson@example.com", "Mathematics");
+        
+        entityManager.persist(student1);
+        entityManager.persist(student2);
+        entityManager.persist(student3);
+        entityManager.flush();
+
+        // When
+        List<Student> computerScienceStudents = studentRepository.findByDepartment("Computer Science");
+
+        // Then
+        assertEquals(2, computerScienceStudents.size());
+        assertTrue(computerScienceStudents.stream().allMatch(s -> s.getDepartment().equals("Computer Science")));
     }
 }
