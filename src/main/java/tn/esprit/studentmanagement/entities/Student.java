@@ -29,4 +29,17 @@ public class Student {
 
     @OneToMany(mappedBy = "student")
     private List<Enrollment> enrollments;
+    // Add this constructor for testing convenience
+public Student(Long id, String firstName, String lastName, String email, String department) {
+    this.id = id;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    // Set default values for other fields
+    this.address = "";
+    this.dateOfBirth = LocalDate.now();
+    this.phoneNumber = "";
+    this.department = null;
+    this.enrollments = Collections.emptyList();
+}
 }
