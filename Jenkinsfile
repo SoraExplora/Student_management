@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "soraexplora/student-management:1.0"
+        SONAR_TOKEN = credentials('sonar-token') // create token in SonarQube
     }
 
     stages {
@@ -17,9 +18,26 @@ pipeline {
             }
         }
 
-        stage('Code Test') {
+        stage('Code Test & Coverage') {
             steps {
-                sh "mvn test"
+                // Run tests with Jacoco agent
+                sh "mvn clean test jacoco:report"
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh "mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.java.binaries=target/classes -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
 
