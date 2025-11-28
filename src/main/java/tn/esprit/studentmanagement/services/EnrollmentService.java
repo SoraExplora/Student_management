@@ -1,14 +1,15 @@
 package tn.esprit.studentmanagement.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.studentmanagement.repositories.EnrollmentRepository;
 import tn.esprit.studentmanagement.entities.Enrollment;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class EnrollmentService implements IEnrollment {
-    @Autowired
     EnrollmentRepository enrollmentRepository;
 
     @Override
@@ -18,7 +19,8 @@ public class EnrollmentService implements IEnrollment {
 
     @Override
     public Enrollment getEnrollmentById(Long idEnrollment) {
-        return enrollmentRepository.findById(idEnrollment).get();
+        Optional<Enrollment> enrollment = enrollmentRepository.findById(idEnrollment);
+        return enrollment.orElse(null);
     }
 
     @Override
