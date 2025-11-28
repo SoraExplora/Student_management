@@ -1,4 +1,4 @@
-package tn.esprit.studentmanagement;
+package tn.esprit.studentmanagement.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,9 +10,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import tn.esprit.studentmanagement.controllers.StudentController;
 import tn.esprit.studentmanagement.entities.Student;
-import tn.esprit.studentmanagement.services.StudentService;
+import tn.esprit.studentmanagement.services.IStudentService;
+
+import java.time.LocalDate;
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -24,20 +26,22 @@ public class StudentControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private StudentService studentService;
+    private IStudentService studentService;
 
     private Student student;
 
     @BeforeEach
     void setUp() {
-        student = new Student(1L, "John", "Doe", "john.doe@example.com", "Computer Science");
+        // Use the actual constructor with all required fields
+        student = new Student(1L, "John", "Doe", "john.doe@example.com", "123 Street", 
+                            LocalDate.of(2000, 1, 1), "123456789", null, Collections.emptyList());
     }
 
     @Test
     void testGetStudentById() throws Exception {
         when(studentService.getStudentById(1L)).thenReturn(student);
 
-        mockMvc.perform(get("/api/students/1"))
+        mockMvc.perform(get("/students/getStudent/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.firstName").value("John"));
@@ -47,21 +51,23 @@ public class StudentControllerTest {
     void testGetStudentById_NotFound() throws Exception {
         when(studentService.getStudentById(1L)).thenReturn(null);
 
-        mockMvc.perform(get("/api/students/1"))
+        mockMvc.perform(get("/students/getStudent/1"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void testCreateStudent() throws Exception {
-        Student newStudent = new Student(null, "Jane", "Doe", "jane.doe@example.com", "Math");
-        Student savedStudent = new Student(2L, "Jane", "Doe", "jane.doe@example.com", "Math");
+        Student newStudent = new Student(null, "Jane", "Doe", "jane.doe@example.com", "456 Street", 
+                                       LocalDate.of(2001, 1, 1), "987654321", null, Collections.emptyList());
+        Student savedStudent = new Student(2L, "Jane", "Doe", "jane.doe@example.com", "456 Street", 
+                                         LocalDate.of(2001, 1, 1), "987654321", null, Collections.emptyList());
         
         when(studentService.saveStudent(any(Student.class))).thenReturn(savedStudent);
 
-        mockMvc.perform(post("/api/students")
+        mockMvc.perform(post("/students/createStudent")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"email\":\"jane.doe@example.com\",\"department\":\"Math\"}"))
-                .andExpect(status().isCreated())
+                .content("{\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"email\":\"jane.doe@example.com\"}"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(2L));
     }
 
@@ -69,7 +75,7 @@ public class StudentControllerTest {
     void testDeleteStudent() throws Exception {
         doNothing().when(studentService).deleteStudent(1L);
 
-        mockMvc.perform(delete("/api/students/1"))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/students/deleteStudent/1"))
+                .andExpect(status().isOk());
     }
 }
