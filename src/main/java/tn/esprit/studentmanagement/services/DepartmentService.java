@@ -1,6 +1,6 @@
 package tn.esprit.studentmanagement.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.studentmanagement.entities.Department;
 import tn.esprit.studentmanagement.repositories.DepartmentRepository;
@@ -8,9 +8,8 @@ import tn.esprit.studentmanagement.repositories.DepartmentRepository;
 import java.util.List;
 
 @Service
-
+@AllArgsConstructor
 public class DepartmentService implements IDepartmentService {
-    @Autowired
     DepartmentRepository departmentRepository;
 
     @Override
@@ -20,6 +19,9 @@ public class DepartmentService implements IDepartmentService {
 
     @Override
     public Department getDepartmentById(Long idDepartment) {
+        if (departmentRepository.findById(idDepartment).isEmpty()) {
+            return null;
+        }
         return departmentRepository.findById(idDepartment).get();
     }
 
