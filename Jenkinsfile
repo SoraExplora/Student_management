@@ -68,6 +68,20 @@ pipeline {
                 }
             }
         }
+
+        /* 🔥 NEW STAGE: Deploy to Kubernetes */
+        stage("Deploy to Kubernetes") {
+            steps {
+                script {
+                    sh """
+                        kubectl apply -f k8s/mysql-deployment.yaml -n devops
+                        kubectl apply -f k8s/configmap-secret.yaml -n devops
+                        kubectl apply -f k8s/spring-deployment.yaml -n devops
+                        kubectl apply -f k8s/spring-service.yaml -n devops
+                    """
+                }
+            }
+        }
     }
 
     post {
