@@ -94,22 +94,23 @@ public class StudentRepositoryTest {
         assertThat(students).hasSize(2);
     }
 
-    @Test
-    public void testFindByEmail() {
-        // Given
-        student.setFirstName("Charlie");
-        student.setLastName("Davis");
-        Student student = new Student();
-        student.setEmail("charlie@example.com");
-        studentRepository.save(student);
+@Test
+public void testFindByEmail() {
+    // Given
+    Student student = new Student();
+    student.setFirstName("Charlie");
+    student.setLastName("Davis");
+    student.setEmail("charlie@example.com");
+    studentRepository.save(student);
 
-        // When
-        Optional<Student> foundStudent = studentRepository.findByEmail("charlie@example.com");
+    // When
+    Optional<Student> foundStudent = studentRepository.findByEmail("charlie@example.com");
 
-        // Then
-        assertThat(foundStudent).isPresent();
-        assertThat(foundStudent.get().getFirstName()).isEqualTo("Charlie");
-    }
+    // Then
+    assertThat(foundStudent).isPresent();
+    assertThat(foundStudent.get().getFirstName()).isEqualTo("Charlie");
+}
+
 
     @Test
     public void testDeleteStudent() {
