@@ -72,8 +72,15 @@ pipeline {
         /* 🔥 NEW STAGE: Deploy to Kubernetes */
         stage("Deploy to Kubernetes") {
             steps {
-                script {
+                withCredentials([string(credentialsId: 'K8S_TOKEN', variable: 'TOKEN')]) {
                     sh """
+                        # Configure kubectl for Jenkins using service account token
+                        kubectl config set-cluster k8s-cluster --server=https://<API_SERVER> --certificate-authority=/tmp/ca.crt --embed-certs=true
+                        kubectl config set-credentials jenkins --token=$TOKEN
+                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                        kubectl config use-context jenkins-context
+
+                        # Apply Kubernetes manifests
                         kubectl apply -f k8s/mysql-deployment.yaml -n devops
                         kubectl apply -f k8s/configmap-secret.yaml -n devops
                         kubectl apply -f k8s/spring-deployment.yaml -n devops
