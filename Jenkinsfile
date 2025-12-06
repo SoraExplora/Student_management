@@ -11,6 +11,7 @@ pipeline {
     }
 
     stages {
+
         stage("Checkout") {
             steps {
                 git branch: 'main', url: 'https://github.com/SoraExplora/Student_management.git'
@@ -57,9 +58,10 @@ pipeline {
             steps {
                 script {
                     sh "docker build -t ${DOCKER_IMAGE} ."
+
                     withCredentials([usernamePassword(
-                        credentialsId: 'd431a208-50e1-4ea5-adbd-34520e3f242b', 
-                        usernameVariable: 'DOCKER_USER', 
+                        credentialsId: 'd431a208-50e1-4ea5-adbd-34520e3f242b',
+                        usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
                         sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
@@ -68,31 +70,30 @@ pipeline {
                 }
             }
         }
-stage("Deploy to Kubernetes") {
-    steps {
-        withCredentials([string(credentialsId: 'K8S_TOKEN', variable: 'TOKEN')]) {
-            sh """
-                # Configure kubectl without CA file
-                kubectl config set-cluster k8s-cluster --server=https://127.0.0.1:32771
-                kubectl config set-credentials jenkins --token=$TOKEN
-                kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
-                kubectl config use-context jenkins-context
 
-                # Deploy manifests
-                kubectl apply -f k8s/mysql-deployment.yaml -n devops
-                kubectl apply -f k8s/configmap-secret.yaml -n devops
-                kubectl apply -f k8s/spring-deployment.yaml -n devops
-                kubectl apply -f k8s/spring-service.yaml -n devops
-            """
+        stage("Deploy to Kubernetes") {
+            steps {
+                withCredentials([string(credentialsId: 'K8S_TOKEN', variable: 'TOKEN')]) {
+                    sh """
+                        kubectl config set-cluster k8s-cluster --server=https://127.0.0.1:32771
+                        kubectl config set-credentials jenkins --token=$TOKEN
+                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                        kubectl config use-context jenkins-context
+
+                        kubectl apply -f k8s/mysql-deployment.yaml -n devops
+                        kubectl apply -f k8s/configmap-secret.yaml -n devops
+                        kubectl apply -f k8s/spring-deployment.yaml -n devops
+                        kubectl apply -f k8s/spring-service.yaml -n devops
+                    """
+                }
+            }
         }
-    }
-}
 
+    }   // <-- closes stages
 
     post {
         always {
             cleanWs()
         }
     }
-}
-}
+}   // <-- closes pipeline
