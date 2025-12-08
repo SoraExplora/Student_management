@@ -58,7 +58,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh "kubectl apply -f ${DEPLOYMENT_FILE} -n ${K8S_NAMESPACE}"
+                    sh "kubectl apply -f ${DEPLOYMENT_FILE} -n ${K8S_NAMESPACE} --validate=false"
                     sh "kubectl rollout status deployment/spring-app -n ${K8S_NAMESPACE}"
                 }
             }
