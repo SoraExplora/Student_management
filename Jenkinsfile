@@ -6,14 +6,14 @@ pipeline {
     }
 
     environment {
-        DOCKER_CREDENTIALS= credentials('7ef56a65-28c0-4778-8db5-60003da1dc27')
+        DOCKER_CREDENTIALS= credentials('d431a208-50e1-4ea5-adbd-34520e3f242b')
     }
 
     stages {
         stage("Code Checkout") {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/NotSoHealthy/ben_hamouda_mohamed_amin_4SAE9.git'
+                    url: 'https://github.com/SoraExplora/Student_management.git'
             }
         }
 
@@ -29,18 +29,10 @@ pipeline {
             }
         }
 
-        stage('Sonar Test'){
-            steps {
-                withSonarQubeEnv('SQ1') {
-                    sh "mvn sonar:sonar"
-                }
-            }
-        }
-
         stage('Docker Build') {
             steps {
                 script {
-                    sh "docker build -t notsohealthy/student-management:1.0 ."
+                    sh "docker build -t soraexplora/student-management:1.0 ."
                 }
             }
         }
@@ -49,7 +41,7 @@ pipeline {
             steps {
                 script {
                     sh 'echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin'
-                    sh "docker push notsohealthy/student-management:1.0"
+                    sh "docker push soraexplora/student-management:1.0"
                 }
             }
         }
